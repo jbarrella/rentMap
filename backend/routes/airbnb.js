@@ -12,9 +12,7 @@ router.get('/', async function (req, res, next) {
   const uri = `mongodb+srv://jbarrella:${mongoPass}@cluster0.hglap.mongodb.net/rentalPriceMap?retryWrites=true&w=majority`;
   const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
 
-  console.log("attempting to connect")
   await client.connect()
-  console.log("connected")
 
   const tilesCollection = client.db("rentalPriceMap").collection("priceTiles");
 
@@ -22,6 +20,8 @@ router.get('/', async function (req, res, next) {
   await tilesCollection.find({}).forEach((x) => allTiles.push(x))
 
   res.json(allTiles);
+
+  client.close()
 });
 
 module.exports = router;

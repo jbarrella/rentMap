@@ -1,8 +1,96 @@
 .leaflet-container {
+  position: relative;
   height: 100vh;
   width: 100vw;
   margin: auto;
   z-index: 1;
+}
+
+.title {
+  opacity: 0.85;
+  position: absolute;
+  z-index: 2;
+  border-radius: 20px;
+  margin-top: 10px;
+  padding: 12px;
+  left: 50%;
+  transform: translate(-50%);
+  background-color: black;
+  color: white;
+  font-size: 35px;
+}
+
+.legendBox {
+  opacity: 0.85;
+  position: absolute;
+  z-index: 2;
+  border-radius: 20px;
+  padding: 12px;
+  right: 0%;
+  bottom: 50%;
+  transform: translate(0%, +50%);
+  margin-right: 10px;
+  margin-bottom: 30px;
+  background-color: black;
+  color: white;
+}
+
+.legend {
+  display: grid;
+  line-height: 1.8rem;
+  grid: repeat(10, 1fr) / auto auto;
+  column-gap: 10px;
+  margin-bottom: 10px;
+}
+
+.legendInfo {
+  text-align: center;
+  color: #bfbfbf;
+}
+
+.legendEntry {
+  width: 30px;
+}
+
+.authorBox {
+  opacity: 0.85;
+  position: absolute;
+  z-index: 2;
+  border-radius: 20px;
+  padding: 12px;
+  left: 0%;
+  bottom: 0%;
+  margin-left: 15px;
+  margin-bottom: 15px;
+  background-color: black;
+  color: white;
+  border: 2px solid transparent;
+}
+
+.authorBox:hover {
+  /* transform: scale(1.3);
+  transition: transform 0.2s; */
+  border: 2px solid #6FFFB0;
+  transition: border 0.7s;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+}
+
+.tileInfoBox {
+  position: absolute;
+  width: 200px;
+  height: 300px;
+  z-index: 2;
+  border-radius: 20px;
+  padding: 12px;
+  right: 0%;
+  top: 10%;
+  margin-right: 10px;
+  background-color: black;
+  color: white;
 }
 
 .App {
@@ -39,6 +127,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
