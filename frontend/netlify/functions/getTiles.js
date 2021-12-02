@@ -8,16 +8,16 @@ exports.handler = async function (event, context) {
 
     await client.connect()
 
-    const tilesCollection = client.db("rentalPriceMap").collection("priceTiles");
+    const sweepsCollection = client.db("rentalPriceMap").collection("sweeps");
 
-    const allTiles = []
-    await tilesCollection.find({}).forEach((x) => allTiles.push(x))
+    const allSweeps = []
+    await sweepsCollection.find({}).forEach((x) => allSweeps.push(x))
 
     client.close()
 
     return {
         statusCode: 200,
         headers: { 'Access-Control-Allow-Origin': '*' },
-        body: JSON.stringify({ tiles: allTiles })
+        body: JSON.stringify({ sweeps: allSweeps })
     };
 };

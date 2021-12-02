@@ -3,18 +3,8 @@ const { MongoClient } = require('mongodb');
 const fs = require('fs');
 const { get } = require('http');
 
-var tilesCollection
-
-async function insertTile(tile) {
-    const inserted = await tilesCollection.insertOne(tile)
-    console.log(inserted)
-}
-
-async function insertTiles(tiles) {
-    const inserted = await tilesCollection.insertMany(tiles)
-    console.log(inserted)
-}
-
+let tilesCollection
+let sweepsCollection
 
 async function connectToDB() {
     const keys = JSON.parse(fs.readFileSync('keys.json'));
@@ -26,6 +16,17 @@ async function connectToDB() {
     await client.connect()
 
     tilesCollection = client.db("rentalPriceMap").collection("priceTiles");
+    sweepsCollection = client.db("rentalPriceMap").collection("sweeps");
+}
+
+async function insertSweep(sweep) {
+    const inserted = await sweepsCollection.insertOne(sweep)
+    console.log(inserted)
+}
+
+async function insertTiles(tiles) {
+    const inserted = await tilesCollection.insertMany(tiles)
+    console.log(inserted)
 }
 
 async function getAveragePrice(llLon, llLat, urLon, urLat) {
@@ -93,45 +94,48 @@ async function getAveragePrice(llLon, llLat, urLon, urLat) {
     return [averagePrice, nPoints]
 }
 
-async function getTiles(lonStart, lonStop, latStart, latStop) {
-    const nTiles = 20
-    const lonStep = (lonStop - lonStart) / nTiles
-    const latStep = (latStop - latStart) / nTiles
+async function getTiles(lonStart, latStart, lonStop, latStop) {
+    const lonStep = (lonStop - lonStart) / NTILES
+    const latStep = (latStop - latStart) / NTILES
 
-    tiles = []
-    for (i of [...Array(nTiles ** 2).keys()]) {
-        if (i < 222) {
-            continue
-        }
-        console.log(i)
-        const llLon = lonStart + lonStep * (i % nTiles)
-        const llLat = latStart + latStep * parseInt(i / nTiles)
-        const urLon = lonStart + lonStep * ((i % nTiles) + 1)
-        const urLat = latStart + latStep * (parseInt(i / nTiles) + 1)
+    let sweep = {
+        name: SWEEP_NAME,
+        bounds: { lonStart: lonStart, lonStop: lonStop, latStart: latStart, latStop: latStop },
+        timestamp: new Date().toISOString()
+    }
+
+    let tiles = []
+    for (i of [...Array(NTILES ** 2).keys()]) {
+        // if (i < 222) {
+        //     continue
+        // }
+
+        const llLon = lonStart + lonStep * (i % NTILES)
+        const llLat = latStart + latStep * parseInt(i / NTILES)
+        const urLon = lonStart + lonStep * ((i % NTILES) + 1)
+        const urLat = latStart + latStep * (parseInt(i / NTILES) + 1)
 
         const [averagePrice, nPoints] = await getAveragePrice(llLon, llLat, urLon, urLat)
-        console.log(averagePrice)
+        console.log(i, averagePrice)
 
         const tile = {
-            "llLon": llLon,
-            "llLat": llLat,
-            "urLon": urLon,
-            "urLat": urLat,
-            "price": averagePrice,
-            'nPoints': nPoints,
-            "timestamp": Date.now()
+            llLon: llLon,
+            llLat: llLat,
+            urLon: urLon,
+            urLat: urLat,
+            price: averagePrice,
+            nPoints: nPoints,
         }
 
         tiles.push(tile)
-        if (i % 10 == 0) {
-            insertTiles(tiles)
-            tiles = []
-        }
-
-        // insertTile(tile)
+        setTimeout(() => {}, 1000)
     }
-
+    sweep.tiles = tiles
+    insertSweep(sweep)
 }
+
+const NTILES = 10
+const SWEEP_NAME = 'south africa'
 
 async function doStuff() {
     await connectToDB()
@@ -143,8 +147,10 @@ async function doStuff() {
     // EU
     // getTiles(-10.033260, 29.127248, 35.632172, 60.246205)
 
-    // Asia
-    getTiles(-10.033260, 29.127248, 35.632172, 60.246205)
+    // South Africa
+    getTiles(16.26, -35.06, 33.37, -21.92)
 }
 
 doStuff()
+
+// https://boundingbox.klokantech.com/

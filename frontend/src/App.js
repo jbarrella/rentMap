@@ -20,18 +20,14 @@ export default function App() {
   colorGradient.setGradient(color1, color2, color3);
   colorGradient.setMidpoint(nColors);
 
-  const [tiles, setTiles] = useState([])
+  const [sweeps, setSweeps] = useState([])
   useEffect(() => {
-    async function fetchTiles() {
+    async function fetchSweeps() {
       const res = (await fetch('https://rentmap.netlify.app/.netlify/functions/getTiles'))
-      const allTiles = (await res.body.json()).tiles
-
-      setTiles(allTiles)
-
-      // var tilesJson = await (await fetch("http://localhost:3001/api/airbnb")).json()
-      // setTiles(tilesJson)
+      const allSweeps = (await res.json()).sweeps
+      setSweeps(allSweeps)
     }
-    fetchTiles()
+    fetchSweeps()
   }, [])
 
   const Tiles = () => {
@@ -50,7 +46,7 @@ export default function App() {
     }
 
     var rectangles = []
-    for (let tile of tiles) {
+    for (let sweep of sweeps) {
       if (tile.price == undefined) {
         continue
       }
@@ -61,8 +57,7 @@ export default function App() {
         bounds={bounds}
         pathOptions={{ fillColor: color, opacity: 0.0, color: 'black', fillOpacity: 0.35 }}
         key={tile._id}
-        eventHandlers={{ mouseover: hover, mouseout: stopHover, click: zoom }}
-      >
+        eventHandlers={{ mouseover: hover, mouseout: stopHover, click: zoom }}>
         <Tooltip sticky opacity='0.8'>
           R{(tile.price / 1000).toString().replace('.', ' ')}
         </Tooltip>
@@ -102,7 +97,7 @@ export default function App() {
         <Tiles />
       </MapContainer>
       <div className='authorBox'>
-        <a href="https://romantic-sinoussi-50af91.netlify.app/">by <span style={{ color: '#7F6DF2' }}>JB</span></a>
+        <a href="https://jasonbarrella.netlify.app/">by <span style={{ color: '#7F6DF2' }}>JB</span></a>
       </div>
     </div>
   );
