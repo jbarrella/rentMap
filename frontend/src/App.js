@@ -23,21 +23,9 @@ export default function App() {
   const [tiles, setTiles] = useState([])
   useEffect(() => {
     async function fetchTiles() {
-      const mongoPass = (await fetch('https://rentmap.netlify.app/.netlify/functions/getMongoPass')).pass
-
-      const uri = `mongodb+srv://jbarrella:${mongoPass}@cluster0.hglap.mongodb.net/rentalPriceMap?retryWrites=true&w=majority`;
-      const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
-      await client.connect()
-
-      const tilesCollection = client.db("rentalPriceMap").collection("priceTiles");
-
-      const allTiles = []
-      await tilesCollection.find({}).forEach((x) => allTiles.push(x))
+      const allTiles = (await fetch('https://rentmap.netlify.app/.netlify/functions/getTiles')).tiles
 
       setTiles(allTiles)
-
-      client.close()
 
       // var tilesJson = await (await fetch("http://localhost:3001/api/airbnb")).json()
       // setTiles(tilesJson)
