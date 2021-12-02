@@ -47,23 +47,23 @@ export default function App() {
 
     var rectangles = []
     for (let sweep of sweeps) {
-      if (tile.price == undefined) {
-        continue
-      }
-      const bounds = [[tile.llLat, tile.llLon], [tile.urLat, tile.urLon]]
-      const color = colorGradient.getColor(parseInt(tile.price / colorStep) + 1)
+    //   if (tile.price == undefined) {
+    //     continue
+    //   }
+    //   const bounds = [[tile.llLat, tile.llLon], [tile.urLat, tile.urLon]]
+    //   const color = colorGradient.getColor(parseInt(tile.price / colorStep) + 1)
 
-      const rectangle = <Rectangle
-        bounds={bounds}
-        pathOptions={{ fillColor: color, opacity: 0.0, color: 'black', fillOpacity: 0.35 }}
-        key={tile._id}
-        eventHandlers={{ mouseover: hover, mouseout: stopHover, click: zoom }}>
-        <Tooltip sticky opacity='0.8'>
-          R{(tile.price / 1000).toString().replace('.', ' ')}
-        </Tooltip>
-      </Rectangle>
+    //   const rectangle = <Rectangle
+    //     bounds={bounds}
+    //     pathOptions={{ fillColor: color, opacity: 0.0, color: 'black', fillOpacity: 0.35 }}
+    //     key={tile._id}
+    //     eventHandlers={{ mouseover: hover, mouseout: stopHover, click: zoom }}>
+    //     <Tooltip sticky opacity='0.8'>
+    //       R{(tile.price / 1000).toString().replace('.', ' ')}
+    //     </Tooltip>
+    //   </Rectangle>
 
-      rectangles.push(rectangle)
+    //   rectangles.push(rectangle)
 
     }
     return rectangles
