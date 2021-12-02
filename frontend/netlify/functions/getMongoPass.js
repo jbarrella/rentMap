@@ -1,3 +1,6 @@
 exports.handler = async function (event, context) {
-    return { pass: process.env.MONGO_PASS }
+    return {
+        statusCode: 200,
+        body: JSON.stringify({message: process.env.MONGO_PASS})
+    };
 };

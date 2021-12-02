@@ -15,5 +15,8 @@ exports.handler = async function (event, context) {
 
     client.close()
 
-    return { tiles: allTiles }
+    return {
+        statusCode: 200,
+        body: { tiles: allTiles }
+    };
 };
