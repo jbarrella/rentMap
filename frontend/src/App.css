@@ -17,7 +17,7 @@
   transform: translate(-50%);
   background-color: black;
   color: white;
-  font-size: 35px;
+  font-size: calc(15px + 1vw);
 }
 
 .legendBox {
@@ -30,14 +30,22 @@
   bottom: 50%;
   transform: translate(0%, +50%);
   margin-right: 10px;
-  margin-bottom: 30px;
   background-color: black;
   color: white;
+  font-size: calc(8px + 0.5vw);
+}
+
+@media screen and (max-width: 600px) {
+  .legendBox {
+    bottom: 0%;
+    margin-bottom: 30px;
+    transform: translate(0%, 0%);
+  }
 }
 
 .legend {
   display: grid;
-  line-height: 1.8rem;
+  line-height: 1.8em;
   grid: repeat(10, 1fr) / auto auto;
   column-gap: 10px;
   margin-bottom: 10px;
@@ -49,7 +57,7 @@
 }
 
 .legendEntry {
-  width: 30px;
+  width: calc(10px + 1vw);
 }
 
 .authorBox {
@@ -57,7 +65,7 @@
   position: absolute;
   z-index: 2;
   border-radius: 20px;
-  padding: 12px;
+  padding: 8px;
   left: 0%;
   bottom: 0%;
   margin-left: 15px;
@@ -65,6 +73,7 @@
   background-color: black;
   color: white;
   border: 2px solid transparent;
+  font-size: calc(10px + 0.5vw);
 }
 
 .authorBox:hover {

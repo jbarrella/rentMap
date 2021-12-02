@@ -16,14 +16,31 @@ export default function App() {
 
   // const color1 = '#502EA8'
   // const color2 = '#E9446A'
+
   colorGradient.setGradient(color1, color2, color3);
   colorGradient.setMidpoint(nColors);
 
   const [tiles, setTiles] = useState([])
   useEffect(() => {
     async function fetchTiles() {
-      var tilesJson = await (await fetch("http://localhost:3001/api/airbnb")).json()
-      setTiles(tilesJson)
+      const mongoPass = (await fetch('https://rentmap.netlify.app/.netlify/functions/getMongoPass')).pass
+
+      const uri = `mongodb+srv://jbarrella:${mongoPass}@cluster0.hglap.mongodb.net/rentalPriceMap?retryWrites=true&w=majority`;
+      const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+      await client.connect()
+
+      const tilesCollection = client.db("rentalPriceMap").collection("priceTiles");
+
+      const allTiles = []
+      await tilesCollection.find({}).forEach((x) => allTiles.push(x))
+
+      setTiles(allTiles)
+
+      client.close()
+
+      // var tilesJson = await (await fetch("http://localhost:3001/api/airbnb")).json()
+      // setTiles(tilesJson)
     }
     fetchTiles()
   }, [])
@@ -96,7 +113,7 @@ export default function App() {
         <Tiles />
       </MapContainer>
       <div className='authorBox'>
-        <a href="https://romantic-sinoussi-50af91.netlify.app/">by JB</a>
+        <a href="https://romantic-sinoussi-50af91.netlify.app/">by <span style={{ color: '#7F6DF2' }}>JB</span></a>
       </div>
     </div>
   );
