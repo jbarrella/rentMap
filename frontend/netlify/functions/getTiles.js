@@ -17,6 +17,7 @@ exports.handler = async function (event, context) {
 
     return {
         statusCode: 200,
-        body: JSON.stringify({tiles: allTiles})
+        headers: { 'Access-Control-Allow-Origin': '*' },
+        body: JSON.stringify({ tiles: allTiles })
     };
 };
