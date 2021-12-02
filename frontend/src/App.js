@@ -23,7 +23,8 @@ export default function App() {
   const [tiles, setTiles] = useState([])
   useEffect(() => {
     async function fetchTiles() {
-      const allTiles = (await fetch('https://rentmap.netlify.app/.netlify/functions/getTiles')).tiles
+      const res = (await fetch('https://rentmap.netlify.app/.netlify/functions/getTiles'))
+      const allTiles = (await res.body.json()).tiles
 
       setTiles(allTiles)
 
