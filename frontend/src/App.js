@@ -46,32 +46,56 @@ export default function App() {
     }
 
     var rectangles = []
+    for (let isweep of sweeps) {
+      for (let jsweep of sweeps) {
+        if (jsweep == isweep) {
+          continue
+        }
+        const isweepRes = ((isweep.bounds.lon2 - isweep.bounds.lon1) * (isweep.bounds.lat2 - isweep.bounds.lat1)) / isweep.tiles.length
+        const jsweepRes = ((jsweep.bounds.lon2 - jsweep.bounds.lon1) * (jsweep.bounds.lat2 - jsweep.bounds.lat1)) / jsweep.tiles.length
+        if (jsweepRes < isweepRes) {
+          continue
+        }
+        if (isweep.bounds.lon1 < jsweep.bounds.lon2 && isweep.bounds.lon2 > jsweep.bounds.lon1
+          && isweep.bounds.lat1 < jsweep.bounds.lat2 && isweep.bounds.lat2 > jsweep.bounds.lat1) {
+          for (let tile of jsweep.tiles) {
+            if (tile.lon1 < isweep.bounds.lon2 && tile.lon2 > isweep.bounds.lon1
+              && tile.lat1 < isweep.bounds.lat2 && tile.lat2 > isweep.bounds.lat1) {
+              tile.price = null
+            }
+
+          }
+        }
+      }
+    }
     for (let sweep of sweeps) {
-    //   if (tile.price == undefined) {
-    //     continue
-    //   }
-    //   const bounds = [[tile.llLat, tile.llLon], [tile.urLat, tile.urLon]]
-    //   const color = colorGradient.getColor(parseInt(tile.price / colorStep) + 1)
+      for (let tile of sweep.tiles) {
+        if (tile.price == undefined || tile.nPoints <= 1) {
+          continue
+        }
+        const bounds = [[tile.lat1, tile.lon1], [tile.lat2, tile.lon2]]
+        const color = colorGradient.getColor(parseInt(tile.price / colorStep) + 1)
 
-    //   const rectangle = <Rectangle
-    //     bounds={bounds}
-    //     pathOptions={{ fillColor: color, opacity: 0.0, color: 'black', fillOpacity: 0.35 }}
-    //     key={tile._id}
-    //     eventHandlers={{ mouseover: hover, mouseout: stopHover, click: zoom }}>
-    //     <Tooltip sticky opacity='0.8'>
-    //       R{(tile.price / 1000).toString().replace('.', ' ')}
-    //     </Tooltip>
-    //   </Rectangle>
+        const rectangle = <Rectangle
+          bounds={bounds}
+          pathOptions={{ fillColor: color, opacity: 0.0, color: 'black', fillOpacity: 0.35 }}
+          key={tile._id}
+          eventHandlers={{ mouseover: hover, mouseout: stopHover, click: zoom }}>
+          <Tooltip sticky opacity='0.8'>
+            R{(tile.price / 1000).toString().replace('.', ' ')}
+            <br/>{tile.nPoints == 300 ? '300+' : tile.nPoints} properties
+          </Tooltip>
+        </Rectangle>
 
-    //   rectangles.push(rectangle)
-
+        rectangles.push(rectangle)
+      }
     }
     return rectangles
   }
 
   return (
     <div>
-      <div className='title'>Rent Map</div>
+      <div className='title'>Global Rent Costs</div>
       <div className='legendBox'>
         <div className='legend'>
           <div className='legendEntry' style={{ 'background': colorGradient.getColor(1) }} /> {`${colorStep * 0 * 0.001} - ${colorStep * 1 * 0.001}`}
@@ -86,10 +110,10 @@ export default function App() {
           <div className='legendEntry' style={{ 'background': colorGradient.getColor(10) }} />{`>${colorStep * 9 * 0.001}`}
         </div>
         <div className='legendInfo'>
-          Monthly rent <br /> in kZAR
+          Avg. rent pm <br/> in kZAR
         </div>
       </div>
-      <MapContainer center={[25, 12]} zoom={3} minZoom={3} maxZoom={10}>
+      <MapContainer center={[25, 12]} zoom={3} minZoom={3} maxZoom={11}>
         <TileLayer
           attribution='&copy; <a href="http://openstreetmap.org">OpenStreetMap</a>'
           url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=fb9b22d6-25da-4bba-b571-809c6c73fe72"
