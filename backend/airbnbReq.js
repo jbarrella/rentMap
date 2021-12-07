@@ -1,7 +1,8 @@
 const axios = require('axios');
 const { MongoClient } = require('mongodb');
 const fs = require('fs');
-const { get } = require('http');
+const { getTTFB } = require('web-vitals');
+// const { get } = require('http');
 
 let tilesCollection
 let sweepsCollection
@@ -152,8 +153,8 @@ async function getTiles(lonStart, latStart, lonStop, latStop) {
     insertSweep(sweep)
 }
 
-const NTILES = 20
-const SWEEP_NAME = 'europe'
+const NTILES = 12
+const SWEEP_NAME = 'africa south'
 
 async function doStuff() {
     await connectToDB()
@@ -163,10 +164,25 @@ async function doStuff() {
     // getTiles(18.300011, -34.367532, 18.76457, -33.786825)
 
     // EU
-    getTiles(-11.26,36.01,30.45,60.5)
+    // getTiles(-11.26, 36.01, 30.45, 60.5)
 
     // South Africa
     // getTiles(16.26, -35.06, 33.37, -21.92)
+
+    // Asia north
+    // getTiles(33.28, 27.93, 124.34, 53.12)
+
+    // Asia south
+    // getTiles(66.26, 5.9, 126.98, 27.64)
+
+    // North america south
+    // getTiles(-124.84, 12.82, -61.79, 49.26)
+
+    // Africa north
+    // getTiles(-18.2,4.0,33.6,35.9)
+
+    // Africa south
+    getTiles(8.7,-26.0,50.4,3.8)
 }
 
 doStuff()

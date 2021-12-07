@@ -1,11 +1,18 @@
 import logo from './logo.svg';
 import './App.css';
-import { React, useEffect, useState, useMemo } from "react";
+import { React, useEffect, useState } from "react";
 import { MapContainer, TileLayer, Tooltip, Rectangle, useMap } from 'react-leaflet'
 import Gradient from "javascript-color-gradient";
+import { ChakraProvider, Checkbox, CheckboxGroup } from '@chakra-ui/react'
 
 
 export default function App() {
+  const initialRegions = {
+    europe: false, 'n. america': false, 's. america': false,
+    'south africa': true, 'cape town': true, asia: false, australia: false, africa: false
+  }
+  const [checkedRegions, setCheckedRegions] = useState(initialRegions)
+
   const colorGradient = new Gradient();
   const nColors = 10
   const maxColor = 120000
@@ -30,7 +37,7 @@ export default function App() {
     fetchSweeps()
   }, [])
 
-  const Tiles = () => {
+  const Tiles = ({ checkedRegions }) => {
     const map = useMap()
 
     const zoom = (e) => {
@@ -69,6 +76,12 @@ export default function App() {
       }
     }
     for (let sweep of sweeps) {
+      if (!(Object.entries(checkedRegions).some(([region, isChecked]) => {
+        return (sweep.name).includes(region) && isChecked
+      }))) {
+        continue
+      }
+      let i = 0
       for (let tile of sweep.tiles) {
         if (tile.price == undefined || tile.nPoints <= 1) {
           continue
@@ -79,51 +92,69 @@ export default function App() {
         const rectangle = <Rectangle
           bounds={bounds}
           pathOptions={{ fillColor: color, opacity: 0.0, color: 'black', fillOpacity: 0.35 }}
-          key={tile._id}
+          key={sweep._id + i.toString()}
           eventHandlers={{ mouseover: hover, mouseout: stopHover, click: zoom }}>
           <Tooltip sticky opacity='0.8'>
             R{(tile.price / 1000).toString().replace('.', ' ')}
-            <br/>{tile.nPoints == 300 ? '300+' : tile.nPoints} properties
+            <br />{tile.nPoints == 300 ? '300+' : tile.nPoints} properties
           </Tooltip>
         </Rectangle>
 
         rectangles.push(rectangle)
+
+        i++;
       }
     }
     return rectangles
   }
 
+  const onChange = (e) => {
+    setCheckedRegions({ ...checkedRegions, [e.target.id]: e.target.checked })
+  }
+
   return (
-    <div>
-      <div className='title'>Global Rent Costs</div>
-      <div className='legendBox'>
-        <div className='legend'>
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(1) }} /> {`${colorStep * 0 * 0.001} - ${colorStep * 1 * 0.001}`}
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(2) }} /> {`${colorStep * 1 * 0.001} - ${colorStep * 2 * 0.001}`}
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(3) }} /> {`${colorStep * 2 * 0.001} - ${colorStep * 3 * 0.001}`}
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(4) }} /> {`${colorStep * 3 * 0.001} - ${colorStep * 4 * 0.001}`}
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(5) }} /> {`${colorStep * 4 * 0.001} - ${colorStep * 5 * 0.001}`}
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(6) }} /> {`${colorStep * 5 * 0.001} - ${colorStep * 6 * 0.001}`}
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(7) }} /> {`${colorStep * 6 * 0.001} - ${colorStep * 7 * 0.001}`}
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(8) }} /> {`${colorStep * 7 * 0.001} - ${colorStep * 8 * 0.001}`}
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(9) }} /> {`${colorStep * 8 * 0.001} - ${colorStep * 9 * 0.001}`}
-          <div className='legendEntry' style={{ 'background': colorGradient.getColor(10) }} />{`>${colorStep * 9 * 0.001}`}
+    <ChakraProvider>
+
+      <div>
+        {/* <div className='container title'>Global Rent Costs</div> */}
+        <div className='container legendBox'>
+          <div className='legend'>
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(1) }} /> {`${colorStep * 0 * 0.001} - ${colorStep * 1 * 0.001}`}
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(2) }} /> {`${colorStep * 1 * 0.001} - ${colorStep * 2 * 0.001}`}
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(3) }} /> {`${colorStep * 2 * 0.001} - ${colorStep * 3 * 0.001}`}
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(4) }} /> {`${colorStep * 3 * 0.001} - ${colorStep * 4 * 0.001}`}
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(5) }} /> {`${colorStep * 4 * 0.001} - ${colorStep * 5 * 0.001}`}
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(6) }} /> {`${colorStep * 5 * 0.001} - ${colorStep * 6 * 0.001}`}
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(7) }} /> {`${colorStep * 6 * 0.001} - ${colorStep * 7 * 0.001}`}
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(8) }} /> {`${colorStep * 7 * 0.001} - ${colorStep * 8 * 0.001}`}
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(9) }} /> {`${colorStep * 8 * 0.001} - ${colorStep * 9 * 0.001}`}
+            <div className='legendEntry' style={{ 'background': colorGradient.getColor(10) }} />{`>${colorStep * 9 * 0.001}`}
+          </div>
+          <div className='legendInfo'>
+            Avg. rent pm <br /> in kZAR
+          </div>
         </div>
-        <div className='legendInfo'>
-          Avg. rent pm <br/> in kZAR
+        <MapContainer center={[25, 12]} zoom={3} minZoom={3} maxZoom={11}>
+          <TileLayer
+            attribution='&copy; <a href="http://openstreetmap.org">OpenStreetMap</a>'
+            url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=fb9b22d6-25da-4bba-b571-809c6c73fe72"
+          />
+          <Tiles checkedRegions={checkedRegions} />
+        </MapContainer>
+        <div className='container authorBox'>
+          <a href="https://jasonbarrella.netlify.app/">by <span style={{ color: '#7F6DF2' }}>JB</span></a>
+        </div>
+        <div className='container optionsBox'>
+          <span style={{ color: '#bfbfbf' }}>Show:</span>
+          <Checkbox id='africa' onChange={onChange}>Africa</Checkbox>
+          <Checkbox id='asia' onChange={onChange}>Asia</Checkbox>
+          <Checkbox isDisabled id='australia' onChange={onChange}>Australia</Checkbox>
+          <Checkbox id='europe' onChange={onChange}>Europe</Checkbox>
+          <Checkbox id='n. america' onChange={onChange}>N. America</Checkbox>
+          <Checkbox isDisabled id='s. america' onChange={onChange}>S. America</Checkbox>
         </div>
       </div>
-      <MapContainer center={[25, 12]} zoom={3} minZoom={3} maxZoom={11}>
-        <TileLayer
-          attribution='&copy; <a href="http://openstreetmap.org">OpenStreetMap</a>'
-          url="https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=fb9b22d6-25da-4bba-b571-809c6c73fe72"
-        />
-        <Tiles />
-      </MapContainer>
-      <div className='authorBox'>
-        <a href="https://jasonbarrella.netlify.app/">by <span style={{ color: '#7F6DF2' }}>JB</span></a>
-      </div>
-    </div>
+    </ChakraProvider>
   );
 }
 
