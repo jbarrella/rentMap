@@ -1,9 +1,8 @@
-import logo from './logo.svg';
 import './App.css';
 import { React, useEffect, useState } from "react";
 import { MapContainer, TileLayer, Tooltip, Rectangle, useMap } from 'react-leaflet'
 import Gradient from "javascript-color-gradient";
-import { ChakraProvider, Checkbox, CheckboxGroup } from '@chakra-ui/react'
+import { ChakraProvider, Checkbox } from '@chakra-ui/react'
 
 
 export default function App() {
@@ -12,22 +11,17 @@ export default function App() {
     'south africa': true, 'cape town': true, asia: false, australia: false, africa: false
   }
   const [checkedRegions, setCheckedRegions] = useState(initialRegions)
+  const [sweeps, setSweeps] = useState([])
 
   const colorGradient = new Gradient();
   const nColors = 10
   const maxColor = 120000
   const colorStep = maxColor / nColors
-  const color1 = "#0D1687"
-  const color2 = "#CC4878"
-  const color3 = "#F3FA56"
-
-  // const color1 = '#502EA8'
-  // const color2 = '#E9446A'
+  const [color1, color2, color3] = ["#0D1687", "#CC4878", "#F3FA56"]
 
   colorGradient.setGradient(color1, color2, color3);
   colorGradient.setMidpoint(nColors);
 
-  const [sweeps, setSweeps] = useState([])
   useEffect(() => {
     async function fetchSweeps() {
       const res = (await fetch('https://rentmap.netlify.app/.netlify/functions/getTiles'))
@@ -58,29 +52,38 @@ export default function App() {
         if (jsweep == isweep) {
           continue
         }
+
+        // determine resolution of sweeps
         const isweepRes = ((isweep.bounds.lon2 - isweep.bounds.lon1) * (isweep.bounds.lat2 - isweep.bounds.lat1)) / isweep.tiles.length
         const jsweepRes = ((jsweep.bounds.lon2 - jsweep.bounds.lon1) * (jsweep.bounds.lat2 - jsweep.bounds.lat1)) / jsweep.tiles.length
         if (jsweepRes < isweepRes) {
+          // avoid double counting
           continue
         }
+
+        // hide overlapping tiles with lower resolution
         if (isweep.bounds.lon1 < jsweep.bounds.lon2 && isweep.bounds.lon2 > jsweep.bounds.lon1
           && isweep.bounds.lat1 < jsweep.bounds.lat2 && isweep.bounds.lat2 > jsweep.bounds.lat1) {
           for (let tile of jsweep.tiles) {
             if (tile.lon1 < isweep.bounds.lon2 && tile.lon2 > isweep.bounds.lon1
               && tile.lat1 < isweep.bounds.lat2 && tile.lat2 > isweep.bounds.lat1) {
-              tile.price = null
+                // tiles with null price are not drawn
+                tile.price = null
             }
 
           }
         }
       }
     }
+
     for (let sweep of sweeps) {
+      // do not display sweeps of regions that are not selected by user 
       if (!(Object.entries(checkedRegions).some(([region, isChecked]) => {
         return (sweep.name).includes(region) && isChecked
       }))) {
         continue
       }
+
       let i = 0
       for (let tile of sweep.tiles) {
         if (tile.price == undefined || tile.nPoints <= 1) {
@@ -92,7 +95,7 @@ export default function App() {
         const rectangle = <Rectangle
           bounds={bounds}
           pathOptions={{ fillColor: color, opacity: 0.0, color: 'black', fillOpacity: 0.35 }}
-          key={sweep._id + i.toString()}
+          key={sweep._id + i}
           eventHandlers={{ mouseover: hover, mouseout: stopHover, click: zoom }}>
           <Tooltip sticky opacity='0.8'>
             R{(tile.price / 1000).toString().replace('.', ' ')}
@@ -101,7 +104,6 @@ export default function App() {
         </Rectangle>
 
         rectangles.push(rectangle)
-
         i++;
       }
     }
@@ -114,9 +116,7 @@ export default function App() {
 
   return (
     <ChakraProvider>
-
       <div>
-        {/* <div className='container title'>Global Rent Costs</div> */}
         <div className='container legendBox'>
           <div className='legend'>
             <div className='legendEntry' style={{ 'background': colorGradient.getColor(1) }} /> {`${colorStep * 0 * 0.001} - ${colorStep * 1 * 0.001}`}
@@ -157,15 +157,3 @@ export default function App() {
     </ChakraProvider>
   );
 }
-
-// var Jawg_Matrix = L.tileLayer('https://{s}.tile.jawg.io/jawg-matrix/{z}/{x}/{y}{r}.png?access-token={accessToken}', {
-// attribution: '<a href="http://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-// minZoom: 0,
-// maxZoom: 22,
-// subdomains: 'abcd',
-// accessToken: '<your accessToken>'
-
-// var Stadia_AlidadeSmoothDark = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-// 	maxZoom: 20,
-// 	attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-// });
