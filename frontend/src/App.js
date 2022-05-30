@@ -24,7 +24,7 @@ export default function App() {
 
   useEffect(() => {
     async function fetchSweeps() {
-      const res = (await fetch('https://rentmap.netlify.app/.netlify/functions/getTiles'))
+      const res = (await fetch('https://qmmlfyzo6yr6uz77sykhqk2t5e0appqn.lambda-url.ap-northeast-1.on.aws/'))
       const allSweeps = (await res.json()).sweeps
       setSweeps(allSweeps)
     }
